@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between;
+            align-items:center; margin-bottom:20px;">
+    <h2>👥 My Residents ({{ total }})</h2>
+    <a href="{% url 'doctor_dashboard' %}" class="btn btn-primary">← Dashboard</a>
+</div>
+
+<!-- Search -->
+<div class="card" style="padding:16px; margin-bottom:16px;">
+    <form method="GET">
+        <input type="text" name="q" value="{{ query }}"
+               placeholder="🔍 Search by name..."
+               style="width:300px; display:inline-block; margin:0;">
+        <button type="submit" class="btn btn-primary" style="margin-left:10px;">
+            Search
+        </button>
+        {% if query %}
+            <a href="{% url 'doctor_resident_list' %}" style="margin-left:10px;">
+                Clear
+            </a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card">
+    {% if residents_data %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Room</th>
+                <th>Gender</th>
+                <th>Blood Group</th>
+                <th>Status</th>
+                <th>Vitals</th>
+                <th>Abnormal</th>
+                <th>Labs</th>
+                <th>Critical</th>
+                <th>Risk</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in residents_data %}
+            <tr style="{% if item.risk_level == 'High' %}background:#fff5f5;{% endif %}">
+                <td>{{ forloop.counter }}</td>
+
+                <!-- Name with Avatar -->
+                <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:34px; height:34px; border-radius:50%;
+                                    background:#1a73e8; color:white; display:flex;
+                                    align-items:center; justify-content:center;
+                                    font-weight:bold; font-size:14px; flex-shrink:0;">
+                            {{ item.resident.full_name|first }}
+                        </div>
+                        <div>
+                            <p style="margin:0; font-weight:500;">
+                                {{ item.resident.full_name }}
+                            </p>
+                            <p style="margin:0; font-size:12px; color:#888;">
+                                {{ item.resident.date_of_birth }}
+                            </p>
+                        </div>
+                    </div>
+                </td>
+
+                <td>{{ item.resident.room_number|default:"—" }}</td>
+                <td>{{ item.resident.gender }}</td>
+                <td><b>{{ item.resident.blood_group }}</b></td>
+
+                <!-- Status -->
+                <td>
+                    <span class="badge
+                        {% if item.resident.status == 'active' %}badge-success
+                        {% elif item.resident.status == 'inactive' %}badge-warning
+                        {% else %}badge-danger{% endif %}">
+                        {{ item.resident.status }}
+                    </span>
+                </td>
+
+                <!-- Vitals Count -->
+                <td style="text-align:center;">
+                    <span style="{% if item.vitals_count == 0 %}color:#aaa;{% endif %}">
+                        {{ item.vitals_count }}
+                    </span>
+                </td>
+
+                <!-- Abnormal Vitals -->
+                <td style="text-align:center;">
+                    {% if item.abnormal > 0 %}
+                        <span class="badge badge-danger">{{ item.abnormal }}</span>
+                    {% else %}
+                        <span style="color:#aaa;">0</span>
+                    {% endif %}
+                </td>
+
+                <!-- Labs Count -->
+                <td style="text-align:center;">
+                    <span style="{% if item.labs_count == 0 %}color:#aaa;{% endif %}">
+                        {{ item.labs_count }}
+                    </span>
+                </td>
+
+                <!-- Critical Labs -->
+                <td style="text-align:center;">
+                    {% if item.critical > 0 %}
+                        <span class="badge badge-danger">{{ item.critical }}</span>
+                    {% else %}
+                        <span style="color:#aaa;">0</span>
+                    {% endif %}
+                </td>
+
+                <!-- Risk Level ✅ Fixed -->
+                <td>
+                    <span class="badge {{ item.risk_badge }}">
+                        {{ item.risk_icon }} {{ item.risk_level }}
+                    </span>
+                </td>
+
+                <!-- Action -->
+                <td>
+                    <a href="{% url 'doctor_resident_detail' item.resident.pk %}"
+                       class="btn btn-primary"
+                       style="padding:5px 14px; font-size:13px;">
+                        View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <div style="text-align:center; padding:60px;">
+        <p style="font-size:48px;">👥</p>
+        <h3 style="color:#555; margin:16px 0 8px 0;">No Residents Assigned</h3>
+        <p style="color:#aaa;">
+            Ask the caregiver to assign residents to your account.<br>
+            Go to <b>Caregiver → Resident Detail → 👨‍⚕️ Assign Doctor</b>
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

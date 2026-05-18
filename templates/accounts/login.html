@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="max-width:420px; margin:60px auto;">
+    <div class="card">
+        <h2 style="text-align:center; margin-bottom:24px; color:#1a73e8;">
+            🏥 Login
+        </h2>
+
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <label>Username</label>
+            <input type="text" name="username" required
+                   placeholder="Enter username" autocomplete="username">
+
+            <label>Password</label>
+            <input type="password" name="password" required
+                   placeholder="Enter password" autocomplete="current-password">
+
+            <div style="text-align:right; margin-top:-10px; margin-bottom:16px;">
+                <a href="{% url 'forgot_password' %}"
+                   style="font-size:13px; color:#1a73e8;">
+                    Forgot Password?
+                </a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+                Login
+            </button>
+        </form>
+
+        <p style="text-align:center; margin-top:16px;">
+            Don't have an account?
+            <a href="{% url 'register' %}">Register here</a>
+        </p>
+    </div>
+</div>
+
+{% endblock %}

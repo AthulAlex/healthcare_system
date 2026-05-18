@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>🔬 Lab Reports</h2>
+    <a href="{% url 'resident_dashboard' %}" class="btn btn-primary">← Dashboard</a>
+</div>
+
+<div class="card">
+    {% if reports %}
+    <table>
+        <thead>
+            <tr>
+                <th>Test Name</th><th>Result</th><th>Unit</th>
+                <th>Normal Range</th><th>Status</th><th>Date</th><th>PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lab in reports %}
+            <tr>
+                <td>{{ lab.test_name }}</td>
+                <td>{{ lab.result_value }}</td>
+                <td>{{ lab.unit }}</td>
+                <td>{{ lab.normal_range }}</td>
+                <td>
+                    <span class="badge
+                        {% if lab.is_critical %}badge-danger{% else %}badge-success{% endif %}">
+                        {% if lab.is_critical %}Critical{% else %}Normal{% endif %}
+                    </span>
+                </td>
+                <td>{{ lab.uploaded_at|date:"d M Y" }}</td>
+                <td>
+                    {% if lab.pdf_report %}
+                        <a href="{{ lab.pdf_report.url }}" target="_blank"
+                           class="btn btn-success" style="padding:4px 10px; font-size:12px;">
+                            View PDF
+                        </a>
+                    {% else %}
+                        <span style="color:#aaa;">None</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No lab reports yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

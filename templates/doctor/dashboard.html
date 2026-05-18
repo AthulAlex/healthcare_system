@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Doctor Profile Card -->
+<div class="card" style="margin-bottom:20px;
+     border-left:5px solid #1a73e8;">
+    <div style="display:flex; align-items:center; gap:20px;">
+
+        <!-- Avatar -->
+        <div style="width:70px; height:70px; border-radius:50%;
+                    background:#1a73e8; color:white; display:flex;
+                    align-items:center; justify-content:center;
+                    font-size:30px; font-weight:bold; flex-shrink:0;">
+            {{ user.username|first|upper }}
+        </div>
+
+        <!-- Doctor Info -->
+        <div style="flex:1;">
+            <h2 style="margin:0; font-size:22px;">
+                Dr. {{ user.username }}
+            </h2>
+            <p style="color:#1a73e8; margin:6px 0 0 0; font-size:15px; font-weight:500;">
+                {{ user.get_specialization_display }}
+            </p>
+            <p style="color:#888; font-size:13px; margin:4px 0 0 0;">
+                🏥 {{ user.get_department_display }}
+                {% if user.qualification %}
+                    &nbsp;|&nbsp; 🎓 {{ user.qualification }}
+                {% endif %}
+                {% if user.experience_years %}
+                    &nbsp;|&nbsp; ⏳ {{ user.experience_years }} years experience
+                {% endif %}
+                {% if user.phone %}
+                    &nbsp;|&nbsp; 📞 {{ user.phone }}
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Badge -->
+        <div style="text-align:center; background:#e8f4fd;
+                    padding:16px 24px; border-radius:10px;">
+            <p style="color:#1a73e8; font-size:12px; margin:0;">My Residents</p>
+            <h2 style="color:#1a73e8; font-size:36px; margin:4px 0 0 0;">
+                {{ total }}
+            </h2>
+        </div>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div style="display:grid; grid-template-columns:repeat(4,1fr);
+            gap:16px; margin-bottom:20px;">
+    <div class="card" style="text-align:center; border-top:4px solid #1a73e8;">
+        <p style="color:#888; font-size:13px;">My Residents</p>
+        <h2 style="color:#1a73e8; font-size:36px; margin:8px 0;">{{ total }}</h2>
+    </div>
+    <div class="card" style="text-align:center; border-top:4px solid #e53935;">
+        <p style="color:#888; font-size:13px;">High Risk</p>
+        <h2 style="color:#e53935; font-size:36px; margin:8px 0;">{{ high_risk }}</h2>
+    </div>
+    <div class="card" style="text-align:center; border-top:4px solid #f57c00;">
+        <p style="color:#888; font-size:13px;">Abnormal Vitals</p>
+        <h2 style="color:#f57c00; font-size:36px; margin:8px 0;">{{ abnormal_vitals }}</h2>
+    </div>
+    <div class="card" style="text-align:center; border-top:4px solid #7b1fa2;">
+        <p style="color:#888; font-size:13px;">Critical Labs</p>
+        <h2 style="color:#7b1fa2; font-size:36px; margin:8px 0;">{{ critical_labs }}</h2>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card" style="margin-bottom:20px;">
+    <h3 style="margin-bottom:16px;">Quick Actions</h3>
+    <a href="{% url 'doctor_resident_list' %}"
+       class="btn btn-primary" style="margin-right:10px;">
+        👥 My Residents
+    </a>
+</div>
+
+<!-- Recent Abnormal Vitals -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">🚨 Recent Abnormal Vitals</h3>
+    {% if recent_vitals %}
+    <table>
+        <thead>
+            <tr>
+                <th>Resident</th><th>BP</th><th>Pulse</th>
+                <th>Oxygen</th><th>Temp</th><th>Sugar</th><th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in recent_vitals %}
+            <tr>
+                <td>
+                    <a href="{% url 'doctor_resident_detail' v.resident.pk %}">
+                        {{ v.resident.full_name }}
+                    </a>
+                </td>
+                <td>{{ v.blood_pressure }}</td>
+                <td>{{ v.pulse_rate }} bpm</td>
+                <td>{{ v.oxygen_level }}%</td>
+                <td>{{ v.temperature }}°C</td>
+                <td>{{ v.blood_sugar }} mg/dL</td>
+                <td>{{ v.recorded_at|date:"d M Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:green;">✅ No abnormal vitals in your residents.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

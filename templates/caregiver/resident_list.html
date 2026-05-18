@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>👥 Resident List</h2>
+    <a href="{% url 'caregiver_dashboard' %}" class="btn btn-primary">← Dashboard</a>
+    <a href="{% url 'add_resident' %}" class="btn btn-success" style="margin-right:10px;">
+    ➕ Add Resident
+</a>
+</div>
+
+<!-- Search -->
+<div class="card" style="padding:16px;">
+    <form method="GET">
+        <input type="text" name="q" value="{{ query }}"
+               placeholder="🔍 Search by name..."
+               style="width:300px; display:inline-block; margin:0;">
+        <button type="submit" class="btn btn-primary" style="margin-left:10px;">
+            Search
+        </button>
+    </form>
+</div>
+
+<!-- Resident Table -->
+<div class="card">
+    {% if residents %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Blood Group</th>
+                <th>Admission Date</th>
+                <th>Emergency Contact</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in residents %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ r.full_name }}</td>
+                <td>{{ r.gender }}</td>
+                <td>{{ r.blood_group }}</td>
+                <td>{{ r.admission_date }}</td>
+                <td>{{ r.emergency_contact }}</td>
+                <td>
+                    <a href="{% url 'caregiver_resident_detail' r.pk %}"
+                       class="btn btn-primary" style="padding:6px 12px; font-size:13px;">
+                        View Details
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No residents found.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

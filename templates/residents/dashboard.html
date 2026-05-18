@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>👴 My Health Dashboard</h2>
+    <a href="{% url 'export_pdf' %}" class="btn btn-success">
+        📄 Export My Report as PDF
+        <a href="{% url 'ai_health_report' %}" class="btn btn-warning" style="margin-left:10px;">
+    🤖 Generate AI Report
+</a>
+    </a>
+</div>
+
+<!-- Risk Card -->
+<div class="card" style="border-left: 5px solid
+    {% if risk_level == 'High' %}#e53935{% else %}#43a047{% endif %};">
+    <h3>⚠️ My Risk Level:
+        <span class="badge {% if risk_level == 'High' %}badge-danger{% else %}badge-success{% endif %}">
+            {{ risk_level }}
+        </span>
+    </h3>
+    <ul style="margin-top:10px; padding-left:20px;">
+        {% for reason in risk_reasons %}
+            <li>{{ reason }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Personal Info -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">📋 My Details</h3>
+    <table>
+        <tr><td><b>Full Name</b></td><td>{{ profile.full_name }}</td></tr>
+        <tr><td><b>Date of Birth</b></td><td>{{ profile.date_of_birth }}</td></tr>
+        <tr><td><b>Gender</b></td><td>{{ profile.gender }}</td></tr>
+        <tr><td><b>Blood Group</b></td><td>{{ profile.blood_group }}</td></tr>
+        <tr><td><b>Admission Date</b></td><td>{{ profile.admission_date }}</td></tr>
+        <tr><td><b>Emergency Contact</b></td><td>{{ profile.emergency_contact }}</td></tr>
+    </table>
+</div>
+
+<!-- Latest Vitals -->
+<div class="card">
+    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <h3>💓 Latest Vitals</h3>
+        <a href="{% url 'vital_history' %}" class="btn btn-primary"
+           style="padding:6px 14px; font-size:13px;">View All</a>
+    </div>
+    {% if latest_vital %}
+    <div class="grid-3">
+        <div class="stat-card">
+            <p>Blood Pressure</p>
+            <h2 style="color:#1a73e8; font-size:24px;">{{ latest_vital.blood_pressure }}</h2>
+        </div>
+        <div class="stat-card">
+            <p>Pulse Rate</p>
+            <h2 style="color:#43a047; font-size:24px;">{{ latest_vital.pulse_rate }} bpm</h2>
+        </div>
+        <div class="stat-card">
+            <p>Oxygen Level</p>
+            <h2 style="color:#0288d1; font-size:24px;">{{ latest_vital.oxygen_level }}%</h2>
+        </div>
+        <div class="stat-card">
+            <p>Temperature</p>
+            <h2 style="color:#f57c00; font-size:24px;">{{ latest_vital.temperature }}°C</h2>
+        </div>
+        <div class="stat-card">
+            <p>Blood Sugar</p>
+            <h2 style="color:#7b1fa2; font-size:24px;">{{ latest_vital.blood_sugar }} mg/dL</h2>
+        </div>
+        <div class="stat-card">
+            <p>Status</p>
+            <h2 style="font-size:20px;">
+                <span class="badge {% if latest_vital.is_abnormal %}badge-danger{% else %}badge-success{% endif %}">
+                    {% if latest_vital.is_abnormal %}Abnormal{% else %}Normal{% endif %}
+                </span>
+            </h2>
+        </div>
+    </div>
+    {% else %}
+        <p>No vitals recorded yet.</p>
+    {% endif %}
+</div>
+
+<!-- Recent Lab Reports -->
+<div class="card">
+    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <h3>🔬 Recent Lab Reports</h3>
+        <a href="{% url 'lab_reports' %}" class="btn btn-primary"
+           style="padding:6px 14px; font-size:13px;">View All</a>
+    </div>
+    {% if recent_labs %}
+    <table>
+        <thead>
+            <tr>
+                <th>Test</th><th>Result</th><th>Unit</th>
+                <th>Normal Range</th><th>Status</th><th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lab in recent_labs %}
+            <tr>
+                <td>{{ lab.test_name }}</td>
+                <td>{{ lab.result_value }}</td>
+                <td>{{ lab.unit }}</td>
+                <td>{{ lab.normal_range }}</td>
+                <td>
+                    <span class="badge {% if lab.is_critical %}badge-danger{% else %}badge-success{% endif %}">
+                        {% if lab.is_critical %}Critical{% else %}Normal{% endif %}
+                    </span>
+                </td>
+                <td>{{ lab.uploaded_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No lab reports yet.</p>
+    {% endif %}
+</div>
+
+<!-- Prescriptions -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">💊 Active Prescriptions</h3>
+    {% if prescriptions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Medicine</th><th>Dosage</th>
+                <th>Frequency</th><th>Prescribed By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in prescriptions %}
+            <tr>
+                <td>{{ p.medicine.name }}</td>
+                <td>{{ p.dosage }}</td>
+                <td>{{ p.frequency }}</td>
+                <td>{{ p.prescribed_by }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No active prescriptions.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

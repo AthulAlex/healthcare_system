@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>💊 Medicine Inventory</h2>
+    <div>
+        <a href="{% url 'add_medicine' %}" class="btn btn-success" style="margin-right:10px;">
+            ➕ Add Medicine
+        </a>
+        <a href="{% url 'export_inventory_pdf' %}" class="btn btn-warning" style="margin-right:10px;">
+            📄 Export PDF
+        </a>
+        <a href="{% url 'stock_dashboard' %}" class="btn btn-primary">← Dashboard</a>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="card" style="padding:16px;">
+    <form method="GET">
+        <input type="text" name="q" value="{{ query }}"
+               placeholder="🔍 Search medicine name..."
+               style="width:300px; display:inline-block; margin:0;">
+        <button type="submit" class="btn btn-primary" style="margin-left:10px;">
+            Search
+        </button>
+        {% if query %}
+            <a href="{% url 'medicine_list' %}" style="margin-left:10px;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Table -->
+<div class="card">
+    {% if medicines %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Batch No.</th>
+                <th>Supplier</th>
+                <th>Quantity</th>
+                <th>Min Stock</th>
+                <th>Expiry Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in medicines %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><b>{{ m.name }}</b></td>
+                <td>{{ m.batch_number }}</td>
+                <td>{{ m.supplier }}</td>
+                <td>
+                    <span class="badge
+                        {% if m.quantity < m.minimum_stock %}badge-danger
+                        {% else %}badge-success{% endif %}">
+                        {{ m.quantity }}
+                    </span>
+                </td>
+                <td>{{ m.minimum_stock }}</td>
+                <td>
+                    <span class="badge
+                        {% if m.expiry_date < today %}badge-danger
+                        {% else %}badge-success{% endif %}">
+                        {{ m.expiry_date }}
+                    </span>
+                </td>
+                <td>
+                    {% if m.expiry_date < today %}
+                        <span class="badge badge-danger">Expired</span>
+                    {% elif m.is_low_stock %}
+                        <span class="badge badge-warning">Low Stock</span>
+                    {% else %}
+                        <span class="badge badge-success">OK</span>
+                    {% endif %}
+                </td>
+                <td style="white-space:nowrap;">
+                    <a href="{% url 'update_stock' m.pk %}"
+                       class="btn btn-success" style="padding:4px 10px; font-size:12px;">
+                        🔄 Stock
+                    </a>
+                    <a href="{% url 'edit_medicine' m.pk %}"
+                       class="btn btn-primary" style="padding:4px 10px; font-size:12px;">
+                        ✏️ Edit
+                    </a>
+                    <a href="{% url 'delete_medicine' m.pk %}"
+                       class="btn btn-danger" style="padding:4px 10px; font-size:12px;">
+                        🗑️ Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div style="text-align:center; padding:40px;">
+            <p style="color:#aaa; font-size:16px;">No medicines found.</p>
+            <a href="{% url 'add_medicine' %}" class="btn btn-success" style="margin-top:16px;">
+                ➕ Add Your First Medicine
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

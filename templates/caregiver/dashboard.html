@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 style="margin-bottom:24px;">👨‍⚕️ Caregiver Dashboard</h2>
+
+<!-- Stat Cards -->
+<div class="grid-3" style="grid-template-columns: repeat(4,1fr);">
+    <div class="stat-card">
+        <p>Total Residents</p>
+        <h2 style="color:#1a73e8;">{{ total_residents }}</h2>
+    </div>
+    <div class="stat-card">
+        <p>Abnormal Vitals</p>
+        <h2 style="color:#e53935;">{{ abnormal_vitals }}</h2>
+    </div>
+    <div class="stat-card">
+        <p>Critical Lab Results</p>
+        <h2 style="color:#f57c00;">{{ critical_labs }}</h2>
+    </div>
+    <div class="stat-card">
+        <p>Low Medicine Stock</p>
+        <h2 style="color:#7b1fa2;">{{ low_stock }}</h2>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">Quick Actions</h3>
+    <a href="{% url 'caregiver_resident_list' %}" class="btn btn-primary" style="margin-right:10px;">
+        👥 View All Residents
+    </a>
+    <a href="{% url 'risk_analysis' %}" class="btn btn-danger">
+        ⚠️ Risk Analysis
+    </a>
+</div>
+
+<!-- Recent Alerts -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">🚨 Recent Abnormal Vitals</h3>
+    {% if recent_vitals %}
+    <table>
+        <thead>
+            <tr>
+                <th>Resident</th>
+                <th>Blood Pressure</th>
+                <th>Pulse</th>
+                <th>Oxygen</th>
+                <th>Temperature</th>
+                <th>Blood Sugar</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vital in recent_vitals %}
+            <tr>
+                <td>
+                    <a href="{% url 'caregiver_resident_detail' vital.resident.pk %}">
+                        {{ vital.resident.full_name }}
+                    </a>
+                </td>
+                <td>{{ vital.blood_pressure }}</td>
+                <td>{{ vital.pulse_rate }} bpm</td>
+                <td>{{ vital.oxygen_level }}%</td>
+                <td>{{ vital.temperature }}°C</td>
+                <td>{{ vital.blood_sugar }} mg/dL</td>
+                <td>{{ vital.recorded_at|date:"d M Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:green;">✅ No abnormal vitals recorded recently.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

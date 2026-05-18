@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>✏️ Edit Medicine — {{ medicine.name }}</h2>
+    <a href="{% url 'medicine_list' %}" class="btn btn-primary">← Back</a>
+</div>
+
+<div class="card" style="max-width:580px;">
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Medicine Name</label>
+        <input type="text" name="name" required value="{{ medicine.name }}">
+
+        <label>Batch Number</label>
+        <input type="text" name="batch_number" required value="{{ medicine.batch_number }}">
+
+        <label>Supplier</label>
+        <input type="text" name="supplier" required value="{{ medicine.supplier }}">
+
+        <label>Minimum Stock Level</label>
+        <input type="number" name="minimum_stock" required value="{{ medicine.minimum_stock }}" min="1">
+
+        <label>Expiry Date</label>
+        <input type="date" name="expiry_date" required value="{{ medicine.expiry_date }}">
+
+        <div style="background:#fff8e1; padding:12px; border-radius:8px;
+                    margin-bottom:16px; font-size:13px; color:#555;">
+            ℹ️ To update quantity, use the <b>Update Stock</b> button instead.
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">
+            💾 Save Changes
+        </button>
+    </form>
+</div>
+
+{% endblock %}

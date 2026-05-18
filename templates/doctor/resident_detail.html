@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Header -->
+<div class="card" style="margin-bottom:16px;">
+    <div style="display:flex; align-items:center; gap:16px;">
+        <div style="width:56px; height:56px; border-radius:50%;
+                    background:#1a73e8; color:white; display:flex;
+                    align-items:center; justify-content:center;
+                    font-size:24px; font-weight:bold;">
+            {{ resident.full_name|first }}
+        </div>
+        <div style="flex:1;">
+            <h2 style="margin:0;">{{ resident.full_name }}</h2>
+            <p style="color:#777; margin:4px 0 0 0; font-size:14px;">
+                {{ resident.room_number|default:"No room assigned" }}
+            </p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a href="{% url 'doctor_add_prescription' resident.pk %}"
+               class="btn btn-success" style="font-size:13px;">💊 Prescribe</a>
+            <a href="{% url 'doctor_add_lab' resident.pk %}"
+               class="btn btn-warning" style="font-size:13px;">🔬 Add Lab</a>
+            <button onclick="document.getElementById('aiModal').style.display='flex'"
+                    class="btn btn-primary" style="font-size:13px;">🤖 AI Report</button>
+            <a href="{% url 'doctor_resident_list' %}"
+               class="btn btn-primary" style="font-size:13px;">← Back</a>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Badge -->
+<div class="card" style="margin-bottom:16px; border-left:5px solid
+    {% if risk_level == 'High' %}#e53935{% else %}#43a047{% endif %};">
+    <h3>⚠️ Risk Level:
+        <span class="badge {% if risk_level == 'High' %}badge-danger{% else %}badge-success{% endif %}">
+            {{ risk_level }}
+        </span>
+    </h3>
+    <ul style="margin-top:10px; padding-left:20px;">
+        {% for reason in risk_reasons %}
+            <li>{{ reason }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Personal Info -->
+<div class="card" style="margin-bottom:16px;">
+    <h3 style="margin-bottom:16px; font-size:15px;">📋 Personal Information</h3>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+        <div><p style="color:#888; font-size:12px;">Gender</p><p><b>{{ resident.gender }}</b></p></div>
+        <div><p style="color:#888; font-size:12px;">Blood Group</p><p><b>{{ resident.blood_group }}</b></p></div>
+        <div><p style="color:#888; font-size:12px;">Status</p>
+            <span class="badge {% if resident.status == 'active' %}badge-success{% else %}badge-danger{% endif %}">
+                {{ resident.status }}
+            </span>
+        </div>
+        <div><p style="color:#888; font-size:12px;">Date of Birth</p><p><b>{{ resident.date_of_birth }}</b></p></div>
+        <div><p style="color:#888; font-size:12px;">Admission Date</p><p><b>{{ resident.admission_date }}</b></p></div>
+        <div><p style="color:#888; font-size:12px;">Emergency Contact</p><p><b>{{ resident.emergency_contact }}</b></p></div>
+    </div>
+    {% if resident.medical_history %}
+    <div style="margin-top:12px; background:#fff8e1; padding:12px; border-radius:8px;">
+        <p style="color:#888; font-size:12px; margin-bottom:4px;">Medical History</p>
+        <p>{{ resident.medical_history }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Stat Cards -->
+<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px;">
+    <div class="card" style="text-align:center; padding:20px;">
+        <p style="color:#888; font-size:13px;">Vitals</p>
+        <h2 style="color:#1a73e8; font-size:32px; margin:8px 0;">{{ vitals_count }}</h2>
+    </div>
+    <div class="card" style="text-align:center; padding:20px;">
+        <p style="color:#888; font-size:13px;">Prescriptions</p>
+        <h2 style="color:#43a047; font-size:32px; margin:8px 0;">{{ prescriptions_count }}</h2>
+    </div>
+    <div class="card" style="text-align:center; padding:20px;">
+        <p style="color:#888; font-size:13px;">Lab Reports</p>
+        <h2 style="color:#f57c00; font-size:32px; margin:8px 0;">{{ labs_count }}</h2>
+    </div>
+    <div class="card" style="text-align:center; padding:20px;">
+        <p style="color:#888; font-size:13px;">Medical History</p>
+        <h2 style="color:#7b1fa2; font-size:32px; margin:8px 0;">{{ history_count }}</h2>
+    </div>
+</div>
+
+<!-- Vitals -->
+<div class="card" style="margin-bottom:16px;">
+    <h3 style="margin-bottom:16px; font-size:15px;">💓 Recent Vital Signs</h3>
+    {% if vitals %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th><th>BP</th><th>Pulse</th>
+                <th>Oxygen</th><th>Temp</th><th>Sugar</th><th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vitals %}
+            <tr>
+                <td>{{ v.recorded_at|date:"d M Y H:i" }}</td>
+                <td>{{ v.blood_pressure }}</td>
+                <td>{{ v.pulse_rate }} bpm</td>
+                <td>{{ v.oxygen_level }}%</td>
+                <td>{{ v.temperature }}°C</td>
+                <td>{{ v.blood_sugar }} mg/dL</td>
+                <td>
+                    <span class="badge {% if v.is_abnormal %}badge-danger{% else %}badge-success{% endif %}">
+                        {% if v.is_abnormal %}Abnormal{% else %}Normal{% endif %}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:#aaa;">No vitals recorded yet.</p>
+    {% endif %}
+</div>
+
+<!-- Lab Reports -->
+<div class="card" style="margin-bottom:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:15px;">🔬 Lab Reports</h3>
+        <a href="{% url 'doctor_add_lab' resident.pk %}"
+           class="btn btn-warning" style="font-size:13px; padding:6px 14px;">
+            ➕ Add Lab
+        </a>
+    </div>
+    {% if lab_reports %}
+    <table>
+        <thead>
+            <tr>
+                <th>Test</th><th>Result</th><th>Unit</th>
+                <th>Normal Range</th><th>Status</th><th>Date</th><th>PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lab in lab_reports %}
+            <tr>
+                <td>{{ lab.test_name }}</td>
+                <td>{{ lab.result_value }}</td>
+                <td>{{ lab.unit }}</td>
+                <td>{{ lab.normal_range }}</td>
+                <td>
+                    <span class="badge {% if lab.is_critical %}badge-danger{% else %}badge-success{% endif %}">
+                        {% if lab.is_critical %}Critical{% else %}Normal{% endif %}
+                    </span>
+                </td>
+                <td>{{ lab.uploaded_at|date:"d M Y" }}</td>
+                <td>
+                    {% if lab.pdf_report %}
+                        <a href="{{ lab.pdf_report.url }}" target="_blank"
+                           class="btn btn-success" style="padding:4px 8px; font-size:12px;">
+                            View
+                        </a>
+                    {% else %}<span style="color:#aaa;">—</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:#aaa;">No lab reports yet.</p>
+    {% endif %}
+</div>
+
+<!-- Prescriptions -->
+<div class="card" style="margin-bottom:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:15px;">💊 Active Prescriptions</h3>
+        <a href="{% url 'doctor_add_prescription' resident.pk %}"
+           class="btn btn-success" style="font-size:13px; padding:6px 14px;">
+            ➕ Prescribe
+        </a>
+    </div>
+    {% if prescriptions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Medicine</th><th>Dosage</th>
+                <th>Frequency</th><th>Prescribed By</th><th>Start Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in prescriptions %}
+            <tr>
+                <td>{{ p.medicine.name }}</td>
+                <td>{{ p.dosage }}</td>
+                <td>{{ p.frequency }}</td>
+                <td>{{ p.prescribed_by }}</td>
+                <td>{{ p.start_date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:#aaa;">No active prescriptions.</p>
+    {% endif %}
+</div>
+
+<!-- AI Report Modal -->
+<div id="aiModal" style="display:none; position:fixed; top:0; left:0;
+     width:100%; height:100%; background:rgba(0,0,0,0.5);
+     z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; padding:30px;
+                width:90%; max-width:580px; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h3 style="margin:0;">🤖 AI Health Report</h3>
+            <button onclick="document.getElementById('aiModal').style.display='none'"
+                    style="border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
+        </div>
+
+        <div style="background:#f5f5f5; padding:16px; border-radius:8px;
+                    margin-bottom:20px; display:flex;
+                    justify-content:space-between; align-items:center;">
+            <div>
+                <p style="font-weight:bold; margin:0;">Generate AI Health Report</p>
+                <p style="color:#888; font-size:13px; margin:4px 0 0 0;">
+                    Analyzes vitals and lab reports
+                </p>
+            </div>
+            <form method="POST" action="{% url 'doctor_ai_report' resident.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" style="font-size:13px;">
+                    Generate
+                </button>
+            </form>
+        </div>
+
+        {% if latest_ai %}
+        <h4 style="margin-bottom:12px;">Latest Report</h4>
+        <table style="margin-bottom:16px;">
+            <tr><td style="color:#888; width:140px;">Risk Score</td>
+                <td><b>{{ latest_ai.risk_score }}</b></td></tr>
+            <tr><td style="color:#888;">Risk Level</td>
+                <td>
+                    <span class="badge
+                        {% if latest_ai.risk_level == 'High' %}badge-danger
+                        {% elif latest_ai.risk_level == 'Medium' %}badge-warning
+                        {% else %}badge-success{% endif %}">
+                        {{ latest_ai.risk_level }}
+                    </span>
+                </td>
+            </tr>
+            <tr><td style="color:#888;">Generated</td>
+                <td>{{ latest_ai.generated_at|date:"d/m/Y H:i" }}</td></tr>
+            <tr><td style="color:#888;">Factors</td>
+                <td style="font-size:13px;">{{ latest_ai.factors }}</td></tr>
+        </table>
+        <h4 style="margin-bottom:8px;">Summary</h4>
+        <div style="background:#f9f9f9; padding:16px; border-radius:8px;
+                    font-size:14px; line-height:1.7;">
+            {{ latest_ai.summary }}
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:30px; color:#aaa;">
+            <p>No AI report generated yet.</p>
+            <p style="font-size:13px;">Click Generate above to create one.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 style="margin-bottom:24px;">📦 Stock Keeper Dashboard</h2>
+
+<!-- Stat Cards -->
+<div class="grid-3" style="grid-template-columns: repeat(4,1fr);">
+    <div class="stat-card">
+        <p>Total Medicines</p>
+        <h2 style="color:#1a73e8;">{{ total }}</h2>
+    </div>
+    <div class="stat-card">
+        <p>Low Stock</p>
+        <h2 style="color:#e53935;">{{ low_stock_count }}</h2>
+    </div>
+    <div class="stat-card">
+        <p>Expiring Soon</p>
+        <h2 style="color:#f57c00;">{{ expiring_soon_count }}</h2>
+    </div>
+    <div class="stat-card">
+        <p>Expired</p>
+        <h2 style="color:#b71c1c;">{{ expired_count }}</h2>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">Quick Actions</h3>
+    <a href="{% url 'medicine_list' %}" class="btn btn-primary" style="margin-right:10px;">
+        💊 View All Medicines
+    </a>
+    <a href="{% url 'add_medicine' %}" class="btn btn-success" style="margin-right:10px;">
+        ➕ Add New Medicine
+    </a>
+    <a href="{% url 'export_inventory_pdf' %}" class="btn btn-warning">
+        📄 Export Inventory PDF
+    </a>
+</div>
+
+<!-- Low Stock Alerts -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">🚨 Low Stock Alerts</h3>
+    {% if low_stock %}
+    <table>
+        <thead>
+            <tr>
+                <th>Medicine</th>
+                <th>Current Qty</th>
+                <th>Minimum Required</th>
+                <th>Supplier</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in low_stock %}
+            <tr>
+                <td>{{ m.name }}</td>
+                <td>
+                    <span class="badge badge-danger">{{ m.quantity }}</span>
+                </td>
+                <td>{{ m.minimum_stock }}</td>
+                <td>{{ m.supplier }}</td>
+                <td>
+                    <a href="{% url 'update_stock' m.pk %}"
+                       class="btn btn-primary" style="padding:5px 12px; font-size:13px;">
+                        Update Stock
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:green;">✅ All medicines are sufficiently stocked.</p>
+    {% endif %}
+</div>
+
+<!-- Expiring Soon -->
+<div class="card">
+    <h3 style="margin-bottom:16px;">⏳ Expiring Within 30 Days</h3>
+    {% if expiring_soon %}
+    <table>
+        <thead>
+            <tr>
+                <th>Medicine</th>
+                <th>Batch No.</th>
+                <th>Expiry Date</th>
+                <th>Quantity</th>
+                <th>Supplier</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in expiring_soon %}
+            <tr>
+                <td>{{ m.name }}</td>
+                <td>{{ m.batch_number }}</td>
+                <td>
+                    <span class="badge badge-warning">{{ m.expiry_date }}</span>
+                </td>
+                <td>{{ m.quantity }}</td>
+                <td>{{ m.supplier }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:green;">✅ No medicines expiring within 30 days.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

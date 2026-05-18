@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>🔬 Add Lab Report — {{ resident.full_name }}</h2>
+    <a href="{% url 'doctor_resident_detail' resident.pk %}" class="btn btn-primary">← Back</a>
+</div>
+
+<div class="card" style="max-width:550px;">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>Test Name</label>
+        <input type="text" name="test_name" required
+               placeholder="e.g. Blood Sugar Fasting">
+
+        <label>Result Value</label>
+        <input type="number" name="result_value" required
+               placeholder="e.g. 180" step="0.01">
+
+        <label>Unit</label>
+        <input type="text" name="unit" required placeholder="e.g. mg/dL">
+
+        <label>Normal Range (format: min-max)</label>
+        <input type="text" name="normal_range" required placeholder="e.g. 70-110">
+
+        <label>Upload PDF Report (optional)</label>
+        <input type="file" name="pdf_report" accept=".pdf">
+
+        <div style="background:#f0f4f8; padding:12px; border-radius:8px;
+                    margin-bottom:16px; font-size:13px; color:#555;">
+            ℹ️ Critical status is <b>auto-detected</b> based on normal range.
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">
+            💾 Save Lab Report
+        </button>
+    </form>
+</div>
+
+{% endblock %}

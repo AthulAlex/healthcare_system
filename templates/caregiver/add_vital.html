@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>💓 Add Vital Signs — {{ resident.full_name }}</h2>
+    <a href="{% url 'caregiver_resident_detail' resident.pk %}" class="btn btn-primary">← Back</a>
+</div>
+
+<div class="card" style="max-width:550px;">
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Blood Pressure (e.g. 120/80)</label>
+        <input type="text" name="blood_pressure" required placeholder="120/80">
+
+        <label>Pulse Rate (bpm)</label>
+        <input type="number" name="pulse_rate" required placeholder="e.g. 75" min="0" max="300">
+
+        <label>Oxygen Level (%)</label>
+        <input type="number" name="oxygen_level" required
+               placeholder="e.g. 98" min="0" max="100" step="0.1">
+
+        <label>Temperature (°C)</label>
+        <input type="number" name="temperature" required
+               placeholder="e.g. 37.0" step="0.1" min="30" max="45">
+
+        <label>Blood Sugar (mg/dL)</label>
+        <input type="number" name="blood_sugar" required
+               placeholder="e.g. 110" step="0.1" min="0">
+
+        <label>Notes (optional)</label>
+        <textarea name="notes" rows="3" placeholder="Any observations..."></textarea>
+
+        <!-- Normal ranges hint -->
+        <div style="background:#f5f5f5; padding:12px; border-radius:8px;
+                    margin-bottom:16px; font-size:13px; color:#555;">
+            <b>Normal Ranges:</b><br>
+            Pulse: 60–100 bpm &nbsp;|&nbsp;
+            Oxygen: ≥95% &nbsp;|&nbsp;
+            Temp: 36–37.5°C &nbsp;|&nbsp;
+            Sugar: 70–140 mg/dL
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">
+            💾 Save Vital Signs
+        </button>
+    </form>
+</div>
+
+{% endblock %}

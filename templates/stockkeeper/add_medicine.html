@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>➕ Add New Medicine</h2>
+    <a href="{% url 'medicine_list' %}" class="btn btn-primary">← Back</a>
+</div>
+
+<div class="card" style="max-width:580px;">
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Medicine Name</label>
+        <input type="text" name="name" required placeholder="e.g. Paracetamol 500mg">
+
+        <label>Batch Number</label>
+        <input type="text" name="batch_number" required placeholder="e.g. BATCH-2024-001">
+
+        <label>Supplier Name</label>
+        <input type="text" name="supplier" required placeholder="e.g. MedSupply Co.">
+
+        <label>Quantity in Stock</label>
+        <input type="number" name="quantity" required placeholder="e.g. 100" min="0">
+
+        <label>Minimum Stock Level
+            <span style="font-weight:normal; color:#888; font-size:13px;">
+                (Alert will show if stock goes below this)
+            </span>
+        </label>
+        <input type="number" name="minimum_stock" required placeholder="e.g. 10" min="1">
+
+        <label>Expiry Date</label>
+        <input type="date" name="expiry_date" required>
+
+        <!-- Helpful hints -->
+        <div style="background:#f0f4f8; padding:12px; border-radius:8px;
+                    margin-bottom:16px; font-size:13px; color:#555;">
+            💡 <b>Tips:</b><br>
+            • Set minimum stock to the amount you need to reorder at<br>
+            • System will auto-alert when quantity falls below minimum<br>
+            • Expired medicines will be flagged automatically
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">
+            ➕ Add Medicine
+        </button>
+    </form>
+</div>
+
+{% endblock %}

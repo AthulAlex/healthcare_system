@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>💓 Vital Signs History</h2>
+    <a href="{% url 'resident_dashboard' %}" class="btn btn-primary">← Dashboard</a>
+</div>
+
+<div class="card">
+    {% if vitals %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date & Time</th><th>Blood Pressure</th><th>Pulse</th>
+                <th>Oxygen</th><th>Temperature</th><th>Blood Sugar</th><th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vitals %}
+            <tr>
+                <td>{{ v.recorded_at|date:"d M Y H:i" }}</td>
+                <td>{{ v.blood_pressure }}</td>
+                <td>{{ v.pulse_rate }} bpm</td>
+                <td>{{ v.oxygen_level }}%</td>
+                <td>{{ v.temperature }}°C</td>
+                <td>{{ v.blood_sugar }} mg/dL</td>
+                <td>
+                    <span class="badge
+                        {% if v.is_abnormal %}badge-danger{% else %}badge-success{% endif %}">
+                        {% if v.is_abnormal %}Abnormal{% else %}Normal{% endif %}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No vitals recorded yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

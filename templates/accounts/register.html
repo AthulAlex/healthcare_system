@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="max-width:520px; margin:40px auto;">
+    <div class="card">
+        <h2 style="text-align:center; margin-bottom:8px; color:#1a73e8;">
+            📝 Create Account
+        </h2>
+        <p style="text-align:center; color:#888; margin-bottom:24px; font-size:14px;">
+            Register to access the Old Age Home System
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Username</label>
+            <input type="text" name="username" required placeholder="Choose a username">
+
+            <label>Phone Number</label>
+            <input type="tel" name="phone" placeholder="e.g. 9876543210" maxlength="15">
+
+            <label>Role</label>
+            <select name="role" required id="roleSelect" onchange="toggleDoctorFields()">
+                <option value="">-- Select Your Role --</option>
+                <option value="caregiver">👨‍⚕️ Caregiver</option>
+                <option value="doctor">👨‍⚕️ Doctor</option>
+                <option value="stockkeeper">📦 Stock Keeper</option>
+                <option value="resident">👴 Resident</option>
+            </select>
+
+            <!-- Doctor Fields — shown only when role is Doctor -->
+            <div id="doctorFields" style="display:none;">
+                <div style="background:#e8f4fd; padding:16px; border-radius:8px;
+                            margin-bottom:16px; border-left:4px solid #1a73e8;">
+                    <p style="font-weight:bold; color:#1a73e8; margin-bottom:12px;">
+                        👨‍⚕️ Doctor Information
+                    </p>
+
+                    <label>Specialization</label>
+                    <select name="specialization">
+                        <option value="general">General Medicine</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="orthopedics">Orthopedics</option>
+                        <option value="endocrinology">Endocrinology</option>
+                        <option value="nephrology">Nephrology</option>
+                        <option value="pulmonology">Pulmonology</option>
+                        <option value="gastroenterology">Gastroenterology</option>
+                        <option value="ophthalmology">Ophthalmology</option>
+                        <option value="dermatology">Dermatology</option>
+                        <option value="psychiatry">Psychiatry</option>
+                        <option value="oncology">Oncology</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <label>Department</label>
+                    <select name="department">
+                        <option value="general_ward">General Ward</option>
+                        <option value="icu">ICU</option>
+                        <option value="cardiology_dept">Cardiology Department</option>
+                        <option value="neurology_dept">Neurology Department</option>
+                        <option value="orthopedics_dept">Orthopedics Department</option>
+                        <option value="outpatient">Outpatient Department</option>
+                        <option value="emergency">Emergency</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <label>Qualification</label>
+                    <input type="text" name="qualification"
+                           placeholder="e.g. MBBS, MD Cardiology">
+
+                    <label>Years of Experience</label>
+                    <input type="number" name="experience_years"
+                           placeholder="e.g. 10" min="0" max="60">
+                </div>
+            </div>
+
+            <label>Password</label>
+            <input type="password" name="password" required
+                   placeholder="Create a password (min 6 chars)">
+
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+                📝 Create Account
+            </button>
+        </form>
+
+        <p style="text-align:center; margin-top:16px;">
+            Already have an account?
+            <a href="{% url 'login' %}">Login here</a>
+        </p>
+    </div>
+</div>
+
+<script>
+function toggleDoctorFields() {
+    const role   = document.getElementById('roleSelect').value;
+    const fields = document.getElementById('doctorFields');
+    fields.style.display = role === 'doctor' ? 'block' : 'none';
+}
+</script>
+
+{% endblock %}

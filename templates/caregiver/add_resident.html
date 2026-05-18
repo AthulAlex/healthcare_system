@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>➕ Add New Resident</h2>
+    <a href="{% url 'caregiver_resident_list' %}" class="btn btn-primary">← Back</a>
+</div>
+
+<div class="card" style="max-width:620px;">
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- ── Section 1: Login Credentials ── -->
+        <h3 style="margin-bottom:12px; color:#1a73e8;">🔐 Login Credentials</h3>
+        <div style="background:#fff8e1; padding:12px; border-radius:8px;
+                    margin-bottom:16px; font-size:13px; color:#777;">
+            ⚠️ <b>Save these!</b> They will be shown once after saving.
+            The resident uses these to login.
+        </div>
+
+        <label>Username</label>
+        <input type="text" name="username" required
+               placeholder="e.g. resident_john">
+
+        <label>Password</label>
+        <div style="position:relative;">
+            <input type="text" name="password" id="passwordField"
+                   required placeholder="Min 6 characters"
+                   style="padding-right:130px;">
+            <button type="button" onclick="generatePassword()"
+                    style="position:absolute; right:8px; top:50%;
+                           transform:translateY(-50%);
+                           background:#1a73e8; color:white; border:none;
+                           border-radius:4px; padding:5px 10px;
+                           font-size:12px; cursor:pointer;">
+                🔀 Auto Generate
+            </button>
+        </div>
+
+        <hr style="margin:20px 0; border-color:#eee;">
+
+        <!-- ── Section 2: Personal Details ── -->
+        <h3 style="margin-bottom:12px; color:#1a73e8;">👤 Personal Details</h3>
+
+        <label>Full Name</label>
+        <input type="text" name="full_name" required
+               placeholder="e.g. John Mathew">
+
+        <label>Date of Birth</label>
+        <input type="date" name="date_of_birth" required>
+
+        <label>Gender</label>
+        <select name="gender" required>
+            <option value="">-- Select Gender --</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label>Blood Group</label>
+        <select name="blood_group" required>
+            <option value="">-- Select Blood Group --</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+        </select>
+
+        <!-- Room & Status side by side -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div>
+                <label>Room Number</label>
+                <input type="text" name="room_number"
+                       placeholder="e.g. Room B-210">
+            </div>
+            <div>
+                <label>Status</label>
+                <select name="status">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="discharged">Discharged</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Address</label>
+        <textarea name="address" rows="2"
+                  placeholder="Full address"></textarea>
+
+        <label>Emergency Contact Number</label>
+        <input type="text" name="emergency_contact" required
+               placeholder="e.g. 9876543210">
+
+        <label>Medical History
+            <span style="font-weight:normal; color:#888; font-size:13px;">
+                (optional)
+            </span>
+        </label>
+        <textarea name="medical_history" rows="2"
+                  placeholder="e.g. Diabetes, Hypertension"></textarea>
+
+        <hr style="margin:20px 0; border-color:#eee;">
+
+        <!-- ── Section 3: Assign Doctor ── -->
+        <h3 style="margin-bottom:12px; color:#1a73e8;">👨‍⚕️ Assign Treating Doctor</h3>
+
+        {% if doctors %}
+        <!-- Doctor Cards -->
+        <div style="display:grid; gap:10px; margin-bottom:16px;">
+
+            <!-- No Doctor Option -->
+            <label style="cursor:pointer; display:flex; align-items:center; gap:10px;
+                          background:#f9f9f9; padding:12px; border-radius:8px;
+                          border:2px solid #eee;">
+                <input type="radio" name="assigned_doctor" value=""
+                       checked style="width:auto; margin:0; flex-shrink:0;">
+                <span style="color:#aaa; font-size:14px;">
+                    — No Doctor Assigned
+                </span>
+            </label>
+
+            {% for doctor in doctors %}
+            <label style="cursor:pointer; display:flex; align-items:center; gap:12px;
+                          background:#f9f9f9; padding:12px 16px; border-radius:8px;
+                          border:2px solid #eee; transition:border-color 0.2s;"
+                   onmouseover="this.style.borderColor='#1a73e8'"
+                   onmouseout="this.style.borderColor='#eee'">
+                <input type="radio" name="assigned_doctor"
+                       value="{{ doctor.pk }}"
+                       style="width:auto; margin:0; flex-shrink:0;">
+
+                <!-- Doctor Avatar -->
+                <div style="width:44px; height:44px; border-radius:50%;
+                            background:#1a73e8; color:white; display:flex;
+                            align-items:center; justify-content:center;
+                            font-weight:bold; font-size:18px; flex-shrink:0;">
+                    {{ doctor.username|first|upper }}
+                </div>
+
+                <!-- Doctor Info -->
+                <div style="flex:1;">
+                    <p style="font-weight:bold; margin:0; font-size:15px;">
+                        Dr. {{ doctor.username }}
+                    </p>
+                    <p style="color:#1a73e8; font-size:13px; margin:2px 0 0 0;">
+                        {{ doctor.get_specialization_display }}
+                    </p>
+                    <p style="color:#888; font-size:12px; margin:2px 0 0 0;">
+                        🏥 {{ doctor.get_department_display }}
+                        {% if doctor.qualification %}
+                            &nbsp;|&nbsp; 🎓 {{ doctor.qualification }}
+                        {% endif %}
+                        {% if doctor.experience_years %}
+                            &nbsp;|&nbsp; ⏳ {{ doctor.experience_years }} yrs
+                        {% endif %}
+                        {% if doctor.phone %}
+                            &nbsp;|&nbsp; 📞 {{ doctor.phone }}
+                        {% endif %}
+                    </p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- No Doctors Warning -->
+        <div style="background:#fff8e1; padding:16px; border-radius:8px;
+                    margin-bottom:16px; border-left:4px solid #f9a825;">
+            <p style="font-weight:bold; color:#f57c00; margin:0 0 8px 0;">
+                ⚠️ No Doctors Registered Yet
+            </p>
+            <p style="color:#888; font-size:13px; margin:0;">
+                You can add the resident now and assign a doctor later.<br>
+                To register a doctor, go to
+                <a href="{% url 'register' %}" target="_blank">Register page</a>
+                and select role <b>Doctor</b>.
+            </p>
+        </div>
+        <!-- Hidden empty value so form still submits -->
+        <input type="hidden" name="assigned_doctor" value="">
+        {% endif %}
+
+        <!-- ── Submit Button ── -->
+        <button type="submit" class="btn btn-success"
+                style="width:100%; margin-top:10px;
+                       padding:14px; font-size:16px;">
+            ➕ Add Resident
+        </button>
+    </form>
+</div>
+
+<script>
+function generatePassword() {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#';
+    let password = '';
+    for (let i = 0; i < 8; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('passwordField').value = password;
+}
+</script>
+
+{% endblock %}

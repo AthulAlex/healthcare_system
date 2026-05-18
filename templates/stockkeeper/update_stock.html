@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>🔄 Update Stock — {{ medicine.name }}</h2>
+    <a href="{% url 'medicine_list' %}" class="btn btn-primary">← Back</a>
+</div>
+
+<div class="card" style="max-width:500px;">
+
+    <!-- Current Info -->
+    <div style="background:#f5f5f5; padding:16px; border-radius:8px; margin-bottom:20px;">
+        <p><b>Batch:</b> {{ medicine.batch_number }}</p>
+        <p style="margin-top:6px;"><b>Supplier:</b> {{ medicine.supplier }}</p>
+        <p style="margin-top:6px;"><b>Expiry Date:</b> {{ medicine.expiry_date }}</p>
+        <p style="margin-top:6px;"><b>Current Stock:</b>
+            <span class="badge {% if medicine.is_low_stock %}badge-danger{% else %}badge-success{% endif %}"
+                  style="font-size:16px;">
+                {{ medicine.quantity }}
+            </span>
+        </p>
+        <p style="margin-top:6px;"><b>Minimum Required:</b> {{ medicine.minimum_stock }}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Action</label>
+        <select name="action" required id="actionSelect">
+            <option value="add">➕ Add to existing stock</option>
+            <option value="remove">➖ Remove from stock</option>
+            <option value="set">🔄 Set exact quantity</option>
+        </select>
+
+        <label>Quantity</label>
+        <input type="number" name="quantity" required
+               placeholder="Enter quantity" min="0" id="qtyInput">
+
+        <!-- Live preview -->
+        <div id="preview" style="background:#e8f5e9; padding:10px; border-radius:8px;
+                                  margin-bottom:16px; font-size:14px; display:none;">
+            New stock will be: <b id="previewVal"></b>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">
+            ✅ Update Stock
+        </button>
+    </form>
+</div>
+
+<script>
+const current = {{ medicine.quantity }};
+const actionSelect = document.getElementById('actionSelect');
+const qtyInput     = document.getElementById('qtyInput');
+const preview      = document.getElementById('preview');
+const previewVal   = document.getElementById('previewVal');
+
+function updatePreview() {
+    const qty    = parseInt(qtyInput.value) || 0;
+    const action = actionSelect.value;
+    let newVal;
+
+    if (action === 'add')    newVal = current + qty;
+    if (action === 'remove') newVal = current - qty;
+    if (action === 'set')    newVal = qty;
+
+    if (qtyInput.value) {
+        preview.style.display = 'block';
+        previewVal.textContent = newVal;
+        previewVal.style.color = newVal < {{ medicine.minimum_stock }} ? 'red' : 'green';
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+actionSelect.addEventListener('change', updatePreview);
+qtyInput.addEventListener('input', updatePreview);
+</script>
+
+{% endblock %}

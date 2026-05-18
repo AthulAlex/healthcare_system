@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>💊 Add Prescription — {{ resident.full_name }}</h2>
+    <a href="{% url 'doctor_resident_detail' resident.pk %}" class="btn btn-primary">← Back</a>
+</div>
+
+<div class="card" style="max-width:550px;">
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Medicine</label>
+        <select name="medicine" required>
+            <option value="">-- Select Medicine --</option>
+            {% for m in medicines %}
+                <option value="{{ m.pk }}">
+                    {{ m.name }} (Stock: {{ m.quantity }})
+                </option>
+            {% endfor %}
+        </select>
+
+        <label>Dosage</label>
+        <input type="text" name="dosage" required placeholder="e.g. 1 tablet">
+
+        <label>Frequency</label>
+        <input type="text" name="frequency" required placeholder="e.g. twice a day">
+
+        <label>Start Date</label>
+        <input type="date" name="start_date" required>
+
+        <label>End Date (optional)</label>
+        <input type="date" name="end_date">
+
+        <div style="background:#e8f4fd; padding:12px; border-radius:8px;
+                    margin-bottom:16px; font-size:13px; color:#555;">
+            ℹ️ Prescription will be saved under your name: <b>Dr. {{ request.user.username }}</b>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">
+            💊 Save Prescription
+        </button>
+    </form>
+</div>
+
+{% endblock %}

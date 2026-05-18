@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+    <h2>👨‍⚕️ Assign Doctor — {{ resident.full_name }}</h2>
+    <a href="{% url 'caregiver_resident_detail' resident.pk %}"
+       class="btn btn-primary">← Back</a>
+</div>
+
+<!-- Current Doctor Info -->
+<div class="card" style="margin-bottom:16px;">
+    <h3 style="margin-bottom:12px; font-size:15px;">Currently Assigned Doctor</h3>
+    {% if resident.assigned_doctor %}
+    <div style="display:flex; align-items:center; gap:16px;">
+        <div style="width:50px; height:50px; border-radius:50%;
+                    background:#1a73e8; color:white; display:flex;
+                    align-items:center; justify-content:center;
+                    font-size:22px; font-weight:bold;">
+            {{ resident.assigned_doctor.username|first|upper }}
+        </div>
+        <div>
+            <p style="font-weight:bold; font-size:16px;">
+                Dr. {{ resident.assigned_doctor.username }}
+            </p>
+            <p style="color:#888; font-size:13px;">
+                {{ resident.assigned_doctor.get_specialization_display }} |
+                {{ resident.assigned_doctor.get_department_display }}
+            </p>
+            {% if resident.assigned_doctor.qualification %}
+            <p style="color:#888; font-size:13px;">
+                {{ resident.assigned_doctor.qualification }}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+        <p style="color:#aaa;">No doctor assigned yet.</p>
+    {% endif %}
+</div>
+
+<!-- Assign New Doctor -->
+<div class="card" style="max-width:600px;">
+    <h3 style="margin-bottom:16px; font-size:15px;">Select New Doctor</h3>
+
+    {% if doctors %}
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Doctor Cards to Select -->
+        <div style="display:grid; gap:12px; margin-bottom:20px;">
+            {% for doctor in doctors %}
+            <label style="cursor:pointer;">
+                <input type="radio" name="assigned_doctor"
+                       value="{{ doctor.pk }}"
+                       {% if resident.assigned_doctor.pk == doctor.pk %}checked{% endif %}
+                       style="width:auto; margin:0 10px 0 0;">
+                <div style="display:inline-flex; align-items:center; gap:12px;
+                            background:#f9f9f9; padding:12px 16px; border-radius:8px;
+                            border:2px solid #eee; width:calc(100% - 30px);
+                            vertical-align:middle; cursor:pointer;"
+                     onclick="this.parentElement.querySelector('input').checked=true;
+                              document.querySelectorAll('.doctor-card').forEach(
+                              c=>c.style.borderColor='#eee');
+                              this.style.borderColor='#1a73e8';"
+                     class="doctor-card">
+                    <div style="width:44px; height:44px; border-radius:50%;
+                                background:#1a73e8; color:white; display:flex;
+                                align-items:center; justify-content:center;
+                                font-weight:bold; font-size:18px; flex-shrink:0;">
+                        {{ doctor.username|first|upper }}
+                    </div>
+                    <div>
+                        <p style="font-weight:bold; margin:0;">
+                            Dr. {{ doctor.username }}
+                        </p>
+                        <p style="color:#1a73e8; font-size:13px; margin:2px 0 0 0;">
+                            {{ doctor.get_specialization_display }}
+                        </p>
+                        <p style="color:#888; font-size:12px; margin:0;">
+                            {{ doctor.get_department_display }}
+                            {% if doctor.qualification %}
+                                | {{ doctor.qualification }}
+                            {% endif %}
+                            {% if doctor.experience_years %}
+                                | {{ doctor.experience_years }} yrs exp
+                            {% endif %}
+                            {% if doctor.phone %}
+                                | 📞 {{ doctor.phone }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+
+        <!-- Option to remove doctor -->
+        <label style="cursor:pointer; display:flex; align-items:center; gap:10px;
+                      margin-bottom:20px;">
+            <input type="radio" name="assigned_doctor" value=""
+                   style="width:auto; margin:0;">
+            <span style="color:#e53935; font-size:14px;">
+                ✕ Remove doctor assignment
+            </span>
+        </label>
+
+        <button type="submit" class="btn btn-success" style="width:100%;">
+            💾 Save Assignment
+        </button>
+    </form>
+
+    {% else %}
+        <div style="text-align:center; padding:30px; color:#aaa;">
+            <p style="font-size:36px;">👨‍⚕️</p>
+            <p style="margin-top:12px;">No doctors registered yet.</p>
+            <a href="{% url 'register' %}" target="_blank"
+               class="btn btn-primary" style="margin-top:16px;">
+                ➕ Register a Doctor
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
